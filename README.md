@@ -34,3 +34,32 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Environment Variables
+
+### Local Development
+Create a `.env.local` file with the following variables:
+```
+NEXT_PUBLIC_SUPABASE_URL='your-supabase-url'
+NEXT_PUBLIC_SUPABASE_ANON_KEY='your-supabase-anon-key'
+NEXT_PUBLIC_SITE_URL='http://localhost:3000'
+```
+
+### Vercel Deployment
+When deploying to Vercel, make sure to add the following environment variables in the Vercel dashboard:
+1. Go to your project in the Vercel dashboard
+2. Navigate to Settings > Environment Variables
+3. Add the following variables:
+   - `NEXT_PUBLIC_SUPABASE_URL`: Your Supabase URL
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Your Supabase anonymous key
+   - `NEXT_PUBLIC_SITE_URL`: Your deployed app URL (e.g., https://resilience-pro-dashboard.vercel.app)
+
+This is crucial for authentication redirects to work correctly in production.
+
+## Supabase Configuration
+Make sure to add both local and production callback URLs to your Supabase project:
+1. Go to your Supabase project dashboard
+2. Navigate to Authentication > URL Configuration
+3. Add the following URLs to the "Redirect URLs" section:
+   - `http://localhost:3000/auth/callback` (for local development)
+   - `https://your-deployed-url.vercel.app/auth/callback` (for production)
