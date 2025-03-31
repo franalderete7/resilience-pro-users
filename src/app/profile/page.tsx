@@ -33,6 +33,7 @@ export default function ProfilePage() {
   const [name, setName] = useState('');
   const [uploading, setUploading] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [phone, setPhone] = useState('');
   const [height, setHeight] = useState<string>('');
   const [weight, setWeight] = useState<string>('');
   const [dateOfBirth, setDateOfBirth] = useState<string>('');
@@ -80,6 +81,7 @@ export default function ProfilePage() {
         setProfile(data);
         setName(data?.name || user.user_metadata?.full_name || user.email?.split('@')[0] || '');
         setImageUrl(profileImageUrl);
+        setPhone(data?.phone || '');
         
         // Set new profile fields if they exist
         if (data.height) setHeight(data.height.toString());
@@ -172,6 +174,7 @@ export default function ProfilePage() {
       const profileData = {
         uuid: user.id,
         name,
+        phone: phone || null,
         // Include email to ensure upsert works properly
         email: profile?.email || user.email,
         // Add new profile fields
@@ -336,6 +339,20 @@ export default function ProfilePage() {
                     onChange={(e) => setName(e.target.value)}
                     className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
                     placeholder="Ingresa tu nombre"
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="phone" className="block text-sm font-medium text-gray-400 mb-2">
+                    Teléfono
+                  </label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                    placeholder="Ingresa tu número de teléfono"
                   />
                 </div>
                 
