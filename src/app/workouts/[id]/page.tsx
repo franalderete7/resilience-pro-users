@@ -178,12 +178,14 @@ export default function WorkoutDetailsPage() {
                         >
                           <div className="flex items-center">
                             {instance.exercise?.image && (
-                              <div className="w-16 h-16 relative mr-4 rounded overflow-hidden">
+                              <div className="w-16 h-16 min-w-[4rem] min-h-[4rem] relative mr-4 rounded overflow-hidden flex-shrink-0">
                                 <Image
                                   src={instance.exercise.image}
                                   alt={instance.exercise?.name || ''}
                                   fill
+                                  quality={90}
                                   className="object-cover"
+                                  loading="eager"
                                 />
                               </div>
                             )}
@@ -191,7 +193,7 @@ export default function WorkoutDetailsPage() {
                               <h3 className="text-white font-medium mb-2">
                                 {instance.exercise?.name || 'Unknown Exercise'}
                               </h3>
-                              <div className="flex space-x-3 text-sm text-gray-400">
+                              <div className="flex flex-wrap gap-2 text-sm text-gray-400">
                                 <span className="inline-flex items-center bg-gray-700 px-2 py-0.5 rounded-full">
                                   <svg className="w-3.5 h-3.5 mr-1 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
