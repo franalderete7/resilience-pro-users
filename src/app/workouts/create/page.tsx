@@ -65,6 +65,27 @@ export default function CreateWorkoutPage() {
   // State to track which accordion sections are expanded
   const [expandedBlockIndex, setExpandedBlockIndex] = useState<number | null>(null);
   
+  // Redirect non-trainer users to home page
+  useEffect(() => {
+    async function checkUserRole() {
+      if (!user) return;
+      
+      const supabase = createClientComponentClient();
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('roles')
+        .eq('uuid', user.id)
+        .single();
+      
+      if (error || !data || !data.roles || !data.roles.includes('trainer')) {
+        // User is not a trainer, redirect to home page
+        router.push('/');
+      }
+    }
+    
+    checkUserRole();
+  }, [user, router]);
+  
   // Fetch exercises on component mount
   useEffect(() => {
     const fetchExercises = async () => {

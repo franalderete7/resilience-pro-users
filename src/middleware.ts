@@ -65,6 +65,26 @@ export async function middleware(req: NextRequest) {
       return NextResponse.redirect(redirectUrl);
     }
     
+    // Block access to workout creation routes for non-trainer users
+    if (session && 
+        (req.nextUrl.pathname.startsWith('/workouts/create') || 
+         req.nextUrl.pathname.includes('/edit'))) {
+      
+      // Check if user has trainer role
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('roles')
+        .eq('uuid', session.user.id)
+        .single();
+      
+      if (profileError || !profile || !profile.roles || !profile.roles.includes('trainer')) {
+        console.log('🚫 Middleware - Non-trainer user trying to access restricted path, redirecting to home');
+        const redirectUrl = req.nextUrl.clone();
+        redirectUrl.pathname = '/';
+        return NextResponse.redirect(redirectUrl);
+      }
+    }
+    
     // Return the response with any session cookies attached
     return res;
   } catch (err) {
