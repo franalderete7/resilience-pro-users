@@ -189,12 +189,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 console.log('✏️ Profile Manager - Updating missing name in double-check flow:', userName);
               }
               
-              // Add 'trainer' role if roles is null or doesn't include 'trainer'
-              if (!currentProfile?.roles || !Array.isArray(currentProfile.roles) || !currentProfile.roles.includes('trainer')) {
+              // Add 'user' role if roles is null or doesn't include 'user'
+              if (!currentProfile?.roles || !Array.isArray(currentProfile.roles) || !currentProfile.roles.includes('user')) {
                 updateData.roles = currentProfile?.roles && Array.isArray(currentProfile.roles) 
-                  ? [...currentProfile.roles, 'trainer'] 
-                  : ['trainer'];
-                console.log('🔑 Profile Manager - Adding trainer role in double-check flow');
+                  ? [...currentProfile.roles, 'user'] 
+                  : ['user'];
+                console.log('🔑 Profile Manager - Adding user role in double-check flow');
               }
               
               // Update the profile
@@ -234,7 +234,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               provider_type: user.app_metadata?.provider || 'google',
               image: user.user_metadata?.avatar_url || null,
               last_sign_in_at: new Date().toISOString(),
-              roles: ['trainer'] // Add the 'trainer' role to the roles array
+              roles: ['user'] // Add the 'user' role to the roles array
             };
             
             console.log('📋 Profile Manager - Profile data to insert:', JSON.stringify(profileData, null, 2));
@@ -300,12 +300,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 console.log('✏️ Profile Manager - Updating missing name to:', userName);
               }
               
-              // Add 'trainer' role if roles is null or doesn't include 'trainer'
-              if (!currentProfile?.roles || !Array.isArray(currentProfile.roles) || !currentProfile.roles.includes('trainer')) {
+              // Add 'user' role if roles is null or doesn't include 'user'
+              if (!currentProfile?.roles || !Array.isArray(currentProfile.roles) || !currentProfile.roles.includes('user')) {
                 updateData.roles = currentProfile?.roles && Array.isArray(currentProfile.roles) 
-                  ? [...currentProfile.roles, 'trainer'] 
-                  : ['trainer'];
-                console.log('🔑 Profile Manager - Adding trainer role to existing profile');
+                  ? [...currentProfile.roles, 'user'] 
+                  : ['user'];
+                console.log('🔑 Profile Manager - Adding user role to existing profile');
               }
             }
             
@@ -454,7 +454,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         providers: authUser.app_metadata?.providers || [],
         provider_type: authUser.app_metadata?.provider || null,
         last_sign_in_at: new Date().toISOString(),
-        roles: ['trainer'] // Add the 'trainer' role to the roles array
+        roles: ['user'] // Add the 'user' role to the roles array
       };
 
       console.log('📝 New user data to be inserted:', newUserData);
@@ -493,12 +493,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           last_sign_in_at: new Date().toISOString() 
         };
         
-        // Add 'trainer' role if roles is null or doesn't include 'trainer'
-        if (!currentUser?.roles || !Array.isArray(currentUser.roles) || !currentUser.roles.includes('trainer')) {
+        // Add 'user' role if roles is null or doesn't include 'user'
+        if (!currentUser?.roles || !Array.isArray(currentUser.roles) || !currentUser.roles.includes('user')) {
           updateData.roles = currentUser?.roles && Array.isArray(currentUser.roles) 
-            ? [...currentUser.roles, 'trainer'] 
-            : ['trainer'];
-          console.log('🔑 Adding trainer role to existing user record');
+            ? [...currentUser.roles, 'user'] 
+            : ['user'];
+          console.log('🔑 Adding user role to existing user record');
         }
         
         // Update user record

@@ -9,9 +9,10 @@ interface WorkoutCardProps {
   workout: Workout;
   onDelete?: (workoutId: number) => void; // For immediate UI updates
   refreshWorkouts?: () => void; // Optional function to refresh data from API
+  isTrainer?: boolean; // Whether the current user is a trainer
 }
 
-export default function WorkoutCard({ workout, onDelete, refreshWorkouts }: WorkoutCardProps) {
+export default function WorkoutCard({ workout, onDelete, refreshWorkouts, isTrainer = true }: WorkoutCardProps) {
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
   
@@ -137,17 +138,19 @@ export default function WorkoutCard({ workout, onDelete, refreshWorkouts }: Work
           Ver Rutina
         </Link>
 
-        <button 
-          onClick={handleDeleteWorkout}
-          disabled={isDeleting}
-          className="delete-button inline-flex items-center justify-center px-4 py-2 text-red-500 rounded-md transition-colors cursor-pointer"
-          style={{ color: '#ef4444' }}
-        >
-          <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style={{ color: '#ef4444' }}>
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-          </svg>
-          {isDeleting ? 'Eliminando...' : 'Eliminar'}
-        </button>
+        {isTrainer && !workout.isAssigned && (
+          <button 
+            onClick={handleDeleteWorkout}
+            disabled={isDeleting}
+            className="delete-button inline-flex items-center justify-center px-4 py-2 text-red-500 rounded-md transition-colors cursor-pointer"
+            style={{ color: '#ef4444' }}
+          >
+            <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style={{ color: '#ef4444' }}>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+            {isDeleting ? 'Eliminando...' : 'Eliminar'}
+          </button>
+        )}
       </div>
     </div>
   );

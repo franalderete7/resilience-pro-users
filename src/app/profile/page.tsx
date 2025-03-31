@@ -16,6 +16,10 @@ interface Profile {
   providers?: string[];
   provider_type?: string;
   last_sign_in_at?: string;
+  height?: number;
+  weight?: number;
+  date_of_birth?: string;
+  preferred_workout_time?: string[];
 }
 
 export default function ProfilePage() {
@@ -29,6 +33,16 @@ export default function ProfilePage() {
   const [name, setName] = useState('');
   const [uploading, setUploading] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [height, setHeight] = useState<string>('');
+  const [weight, setWeight] = useState<string>('');
+  const [dateOfBirth, setDateOfBirth] = useState<string>('');
+  const [workoutTimeOptions] = useState([
+    { value: 'morning', label: 'Mañana' },
+    { value: 'afternoon', label: 'Tarde' },
+    { value: 'evening', label: 'Noche' },
+    { value: 'night', label: 'Madrugada' },
+  ]);
+  const [selectedWorkoutTimes, setSelectedWorkoutTimes] = useState<string[]>([]);
 
   // Fetch user profile
   useEffect(() => {
@@ -66,6 +80,12 @@ export default function ProfilePage() {
         setProfile(data);
         setName(data?.name || user.user_metadata?.full_name || user.email?.split('@')[0] || '');
         setImageUrl(profileImageUrl);
+        
+        // Set new profile fields if they exist
+        if (data.height) setHeight(data.height.toString());
+        if (data.weight) setWeight(data.weight.toString());
+        if (data.date_of_birth) setDateOfBirth(data.date_of_birth);
+        if (data.preferred_workout_time) setSelectedWorkoutTimes(data.preferred_workout_time);
         
         // If user has a Google profile image but it's not saved in our profiles table, update it
         if (!data.image && user.user_metadata?.avatar_url) {
@@ -144,12 +164,21 @@ export default function ProfilePage() {
       
       console.log('Updating profile with name:', name);
       
+      // Validate input values
+      const heightValue = height ? parseFloat(height) : null;
+      const weightValue = weight ? parseFloat(weight) : null;
+      
       // Try using upsert instead of update (similar to what we did in AuthContext)
       const profileData = {
         uuid: user.id,
         name,
         // Include email to ensure upsert works properly
-        email: profile?.email || user.email
+        email: profile?.email || user.email,
+        // Add new profile fields
+        height: heightValue,
+        weight: weightValue,
+        date_of_birth: dateOfBirth || null,
+        preferred_workout_time: selectedWorkoutTimes.length > 0 ? selectedWorkoutTimes : null
       };
       
       console.log('Profile data for update:', profileData);
@@ -179,6 +208,35 @@ export default function ProfilePage() {
       setError('Error al actualizar el perfil. Revisa la consola para más detalles.');
     } finally {
       setUpdating(false);
+    }
+  };
+
+  // Handle workout time selection
+  const toggleWorkoutTime = (time: string) => {
+    setSelectedWorkoutTimes(prev => {
+      if (prev.includes(time)) {
+        return prev.filter(t => t !== time);
+      } else {
+        return [...prev, time];
+      }
+    });
+  };
+
+  // Format date for display
+  const formatDateForInput = (dateString: string | undefined) => {
+    if (!dateString) return '';
+    
+    // If the date is already in YYYY-MM-DD format, return it
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+      return dateString;
+    }
+    
+    // Otherwise, try to parse and format it
+    try {
+      const date = new Date(dateString);
+      return date.toISOString().split('T')[0];
+    } catch (e) {
+      return '';
     }
   };
 
@@ -279,6 +337,74 @@ export default function ProfilePage() {
                     className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
                     placeholder="Ingresa tu nombre"
                   />
+                </div>
+                
+                <div>
+                  <label htmlFor="height" className="block text-sm font-medium text-gray-400 mb-2">
+                    Altura (cm)
+                  </label>
+                  <input
+                    type="number"
+                    id="height"
+                    value={height}
+                    onChange={(e) => setHeight(e.target.value)}
+                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                    placeholder="Altura en centímetros"
+                    min="0"
+                    step="0.1"
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="weight" className="block text-sm font-medium text-gray-400 mb-2">
+                    Peso (kg)
+                  </label>
+                  <input
+                    type="number"
+                    id="weight"
+                    value={weight}
+                    onChange={(e) => setWeight(e.target.value)}
+                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                    placeholder="Peso en kilogramos"
+                    min="0"
+                    step="0.1"
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="dateOfBirth" className="block text-sm font-medium text-gray-400 mb-2">
+                    Fecha de Nacimiento
+                  </label>
+                  <input
+                    type="date"
+                    id="dateOfBirth"
+                    value={dateOfBirth}
+                    onChange={(e) => setDateOfBirth(e.target.value)}
+                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                    max={new Date().toISOString().split('T')[0]} // Set max as today
+                  />
+                </div>
+                
+                <div>
+                  <p className="block text-sm font-medium text-gray-400 mb-2">
+                    Horario Preferido para Entrenar
+                  </p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {workoutTimeOptions.map((option) => (
+                      <div key={option.value} className="flex items-center">
+                        <input
+                          type="checkbox"
+                          id={`workout-time-${option.value}`}
+                          checked={selectedWorkoutTimes.includes(option.value)}
+                          onChange={() => toggleWorkoutTime(option.value)}
+                          className="w-4 h-4 mr-2 accent-blue-600"
+                        />
+                        <label htmlFor={`workout-time-${option.value}`} className="text-gray-300">
+                          {option.label}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
                 </div>
                 
                 <div className="pt-4">

@@ -5,12 +5,36 @@ import { useRouter } from 'next/navigation';
 import Header from "@/components/Header";
 import { useWorkouts, Workout } from '@/hooks/useWorkouts';
 import WorkoutCard from '@/components/WorkoutCard';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function WorkoutsPage() {
   const router = useRouter();
+  const { user } = useAuth();
   const { workouts: fetchedWorkouts, loading, error, refreshWorkouts } = useWorkouts();
   const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isTrainer, setIsTrainer] = useState(false);
+
+  // Check if user is a trainer
+  useEffect(() => {
+    async function checkUserRole() {
+      if (!user) return;
+      
+      const supabase = createClientComponentClient();
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('roles')
+        .eq('uuid', user.id)
+        .single();
+      
+      if (!error && data && data.roles) {
+        setIsTrainer(data.roles.includes('trainer'));
+      }
+    }
+    
+    checkUserRole();
+  }, [user]);
 
   // Update local state when workouts are fetched
   useEffect(() => {
@@ -78,22 +102,28 @@ export default function WorkoutsPage() {
                 </svg>
               </button>
               <div>
-                <h1 className="text-3xl font-bold text-white">Tus Rutinas</h1>
-                <p className="text-gray-400 mt-2">Administra tus rutinas de entrenamiento</p>
+                <h1 className="text-3xl font-bold text-white">Mis Rutinas</h1>
+                <p className="text-gray-400 mt-2">
+                  {isTrainer 
+                    ? "Administra tus rutinas de entrenamiento" 
+                    : "Visualiza tus rutinas de entrenamiento asignadas"}
+                </p>
               </div>
             </div>
             
-            <div className="flex items-center">
-              <button
-                onClick={handleAddClick}
-                className="flex items-center justify-center px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-700 focus:outline-none shadow-lg transition-colors text-white font-medium cursor-pointer"
-              >
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-                Añadir Rutina
-              </button>
-            </div>
+            {isTrainer && (
+              <div className="flex items-center">
+                <button
+                  onClick={handleAddClick}
+                  className="flex items-center justify-center px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-700 focus:outline-none shadow-lg transition-colors text-white font-medium cursor-pointer"
+                >
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  Añadir Rutina
+                </button>
+              </div>
+            )}
           </div>
           
           <div className="mb-6">
@@ -108,7 +138,11 @@ export default function WorkoutsPage() {
           
           {filteredWorkouts.length === 0 ? (
             <div className="bg-gray-900 rounded-lg p-8 text-center">
-              <p className="text-gray-400 text-lg">No se encontraron rutinas. ¡Haz clic en el botón "Añadir Rutina" para comenzar!</p>
+              <p className="text-gray-400 text-lg">
+                {isTrainer 
+                  ? "No se encontraron rutinas. ¡Haz clic en el botón \"Añadir Rutina\" para comenzar!" 
+                  : "No tienes rutinas asignadas. Contacta a un entrenador para obtener rutinas personalizadas."}
+              </p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -118,6 +152,7 @@ export default function WorkoutsPage() {
                   workout={workout} 
                   onDelete={handleWorkoutDelete}
                   refreshWorkouts={refreshWorkouts}
+                  isTrainer={isTrainer}
                 />
               ))}
             </div>
